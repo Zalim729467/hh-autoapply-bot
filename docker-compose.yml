@@ -1,0 +1,52 @@
+name: hh-bot
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: hh-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hh}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hh}
+      POSTGRES_DB: ${POSTGRES_DB:-hh}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hh} -d ${POSTGRES_DB:-hh}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: hh-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hh-bot
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./:/app
+    command: ["python", "-m", "bot"]
+    restart: unless-stopped
+
+volumes:
+  pgdata:

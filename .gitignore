@@ -1,0 +1,38 @@
+# --- Secrets ---
+.env
+*.env.local
+*.pem
+*.key
+backups/
+*.dump
+*.dump.gpg
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- IDE ---
+.vscode/
+.idea/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Mini App ---
+miniapp/node_modules/
+miniapp/dist/
+miniapp/.vite/
+
+# --- Playwright ---
+ms-playwright/
+playwright-report/
+
+# --- Docker ---
+*.log
