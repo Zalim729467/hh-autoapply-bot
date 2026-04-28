@@ -12,7 +12,7 @@ from redis.asyncio import Redis
 from alembic import command
 from alembic.config import Config as AlembicConfig
 
-from bot.handlers import common, feedback, whitelist
+from bot.handlers import common, feedback, menu, whitelist
 from bot.middlewares.ratelimit import RateLimitMiddleware
 from bot.middlewares.whitelist import WhitelistMiddleware
 from core.config import settings
@@ -46,10 +46,11 @@ async def main() -> None:
     dp.update.outer_middleware(WhitelistMiddleware())
     dp.update.outer_middleware(RateLimitMiddleware(redis=redis))
 
-    # Routers
+    # Routers (order matters: command-routers first, button-routers after)
     dp.include_router(common.router)
     dp.include_router(feedback.router)
     dp.include_router(whitelist.router)
+    dp.include_router(menu.router)
 
     me = await bot.get_me()
     log.info("bot_started", username=me.username, id=me.id)
