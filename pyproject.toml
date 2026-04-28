@@ -25,6 +25,8 @@ dependencies = [
     "cryptography==43.0.3",
     # HTTP
     "httpx==0.27.2",
+    # Browser automation (hh.ru SMS login, stage 3+)
+    "playwright==1.48.0",
     # AI (used from stage 7+, included now to avoid rebuild later)
     "openai==1.54.3",
     # Utils

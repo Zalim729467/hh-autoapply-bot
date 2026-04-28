@@ -5,10 +5,10 @@ from __future__ import annotations
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.types import Message
+from sqlalchemy import func, select
 
 from bot import texts
 from bot.keyboards.main_menu import (
-    BTN_ACCOUNTS,
     BTN_ATTENTION,
     BTN_BACK,
     BTN_DRY,
@@ -23,6 +23,8 @@ from bot.keyboards.main_menu import (
     back_only_kb,
     main_menu_kb,
 )
+from core.db.models import HhAccount, User
+from core.db.session import SessionLocal
 
 router = Router(name="menu")
 
@@ -74,19 +76,26 @@ async def on_schedule(message: Message) -> None:
     await _show_screen(message, texts.SCHEDULE_OVERVIEW)
 
 
-@router.message(F.text == BTN_ACCOUNTS)
-async def on_accounts(message: Message) -> None:
-    await _show_screen(message, texts.ACCOUNTS_EMPTY)
-
-
 @router.message(F.text == BTN_RESUMES)
 async def on_resumes(message: Message) -> None:
     await _show_screen(message, texts.RESUMES_EMPTY)
 
 
 @router.message(F.text == BTN_SETTINGS)
-async def on_settings(message: Message) -> None:
-    await _show_screen(message, texts.SETTINGS_OVERVIEW)
+async def on_settings(message: Message, user: User) -> None:
+    async with SessionLocal() as db:
+        cnt = (
+            await db.execute(
+                select(func.count())
+                .select_from(HhAccount)
+                .where(HhAccount.user_id == user.id, HhAccount.status == "active")
+            )
+        ).scalar_one()
+    if cnt > 0:
+        hh_status = f"🟢 НН аккаунт — привязан ({cnt})"
+    else:
+        hh_status = "🔴 НН аккаунт — не привязан"
+    await _show_screen(message, texts.SETTINGS_OVERVIEW.format(hh_status=hh_status))
 
 
 @router.message(F.text == BTN_STATS)

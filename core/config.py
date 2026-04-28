@@ -28,6 +28,10 @@ class Settings(BaseSettings):
     COOKIES_ENC_KEY: str = ""
     BACKUP_GPG_PASSPHRASE: str = ""
 
+    # Default proxy for hh.ru Playwright sessions (e.g. http://user:pass@host:port
+    # or socks5://user:pass@host:port). Empty = direct connection.
+    HH_PROXY_URL: str = ""
+
     # AI (used from stage 7+)
     AI_PROVIDER: str = "openrouter"
     OPENAI_API_KEY: str = ""
